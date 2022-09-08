@@ -24,7 +24,85 @@ provider "aws" {
 #}
 
 
-####Security Groups############################################################################################################
+resource "aws_key_pair" "ghost-ec2-pool" {
+  key_name   = "ghost-ec2-pool"
+  public_key = var.aws_public_key
+}
+
+####VPC#############################################################################################################
+
+resource "aws_vpc" "cloudx" {
+  cidr_block           = "10.10.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags                 = {
+    Name = "cloudx"
+  }
+
+}
+
+resource "aws_subnet" "public_a" {
+  vpc_id                  = "${aws_vpc.cloudx.id}"
+  cidr_block              = "10.10.1.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1a"
+  tags                    = {
+    Name = "public_a"
+  }
+}
+
+resource "aws_subnet" "public_b" {
+  vpc_id                  = "${aws_vpc.cloudx.id}"
+  cidr_block              = "10.10.2.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1b"
+  tags                    = {
+    Name = "public_b"
+  }
+}
+
+resource "aws_subnet" "public_c" {
+  vpc_id                  = "${aws_vpc.cloudx.id}"
+  cidr_block              = "10.10.3.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1c"
+  tags                    = {
+    Name = "public_c"
+  }
+}
+
+resource "aws_internet_gateway" "cloudx-igw" {
+  vpc_id = "${aws_vpc.cloudx.id}"
+  tags   = {
+    Name = "cloudx-igw"
+  }
+}
+
+resource "aws_route_table" "public_rt" {
+  vpc_id = "${aws_vpc.cloudx.id}"
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.cloudx-igw.id}"
+  }
+  tags = {
+    Name = "public_rt"
+  }
+}
+
+resource "aws_route_table_association" "public_rt_subnet_a" {
+  subnet_id      = "${aws_subnet.public_a.id}"
+  route_table_id = "${aws_route_table.public_rt.id}"
+}
+resource "aws_route_table_association" "public_rt_subnet_b" {
+  subnet_id      = "${aws_subnet.public_b.id}"
+  route_table_id = "${aws_route_table.public_rt.id}"
+}
+resource "aws_route_table_association" "public_rt_subnet_c" {
+  subnet_id      = "${aws_subnet.public_c.id}"
+  route_table_id = "${aws_route_table.public_rt.id}"
+}
+
+####Security Groups#####################################################################################################
 
 
 resource "aws_security_group" "bastion" {
@@ -140,100 +218,46 @@ resource "aws_security_group" "efs" {
 }
 
 
-####VPC#############################################################################################################
+#####Role###############################################################################################################
 
-resource "aws_vpc" "cloudx" {
-  cidr_block           = "10.10.0.0/16"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-  tags                 = {
-    Name = "cloudx"
-  }
+resource "aws_iam_role" "ghost_app_role" {
+  name = "ghost_app_role"
 
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ec2:Describe*",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "elasticfilesystem:DescribeFileSystems",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "elasticfilesystem:ClientMount",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "elasticfilesystem:ClientWrite",
+      "Resource": ["*"]
+    }
+  ]
+}
+EOF
 }
 
-resource "aws_subnet" "public_a" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
-  cidr_block              = "10.10.1.0/24"
-  map_public_ip_on_launch = true
-  availability_zone       = "eu-central-1a"
-  tags                    = {
-    Name = "public_a"
-  }
-}
-
-resource "aws_subnet" "public_b" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
-  cidr_block              = "10.10.2.0/24"
-  map_public_ip_on_launch = true
-  availability_zone       = "eu-central-1b"
-  tags                    = {
-    Name = "public_b"
-  }
-}
-
-resource "aws_subnet" "public_c" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
-  cidr_block              = "10.10.3.0/24"
-  map_public_ip_on_launch = true
-  availability_zone       = "eu-central-1c"
-  tags                    = {
-    Name = "public_c"
-  }
-}
-
-resource "aws_internet_gateway" "cloudx-igw" {
-  vpc_id = "${aws_vpc.cloudx.id}"
-  tags   = {
-    Name = "cloudx-igw"
-  }
-}
-
-resource "aws_route_table" "public_rt" {
-  vpc_id = "${aws_vpc.cloudx.id}"
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.cloudx-igw.id}"
-  }
-  tags = {
-    Name = "public_rt"
-  }
-}
-
-resource "aws_route_table_association" "public_rt_subnet_a" {
-  subnet_id      = "${aws_subnet.public_a.id}"
-  route_table_id = "${aws_route_table.public_rt.id}"
-}
-resource "aws_route_table_association" "public_rt_subnet_b" {
-  subnet_id      = "${aws_subnet.public_b.id}"
-  route_table_id = "${aws_route_table.public_rt.id}"
-}
-resource "aws_route_table_association" "public_rt_subnet_c" {
-  subnet_id      = "${aws_subnet.public_c.id}"
-  route_table_id = "${aws_route_table.public_rt.id}"
+resource "aws_iam_instance_profile" "kube_control_plane_profile" {
+  name = "ghost_app"
+  role = aws_iam_role.ghost_app_role.name
 }
 
 
-#####iam################################################################################################################
-
-#resource "aws_iam_role" "kube_control_plane_role" {
-#  name = "kubernetes-undrey-master"
-#
-#  assume_role_policy = <<EOF
-#{
-#  "Version": "2012-10-17",
-#  "Statement": [
-#    {
-#      "Effect": "Allow",
-#      "Action": "sts:AssumeRole",
-#      "Principal": {
-#        "Service": "ec2.amazonaws.com"
-#      }
-#      }
-#  ]
-#}
-#EOF
-#}
 
 #Add AWS Policies for Kubernetes
 

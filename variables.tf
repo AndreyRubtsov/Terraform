@@ -7,3 +7,8 @@ variable "aws_secret_key" {
   description = "aws secret key"
   type        = string
 }
+
+variable "aws_public_key" {
+  description = "aws public key"
+  type        = string
+}
