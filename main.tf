@@ -24,7 +24,7 @@ provider "aws" {
 #}
 
 
-####secgroup############################################################################################################
+####Security Groups############################################################################################################
 
 
 resource "aws_security_group" "bastion" {
@@ -52,7 +52,6 @@ resource "aws_security_group" "bastion" {
   }
 }
 
-
 resource "aws_security_group" "ec2_pool" {
   name        = "ec2_pool"
   vpc_id      = "${aws_vpc.cloudx.id}"
@@ -61,19 +60,13 @@ resource "aws_security_group" "ec2_pool" {
     from_port       = 22
     to_port         = 22
     protocol        = "tcp"
-    security_groups = [aws_security_group.bastion]
+    security_groups = [aws_security_group.bastion.id]
   }
   ingress {
     from_port   = 2049
     to_port     = 2049
     protocol    = "tcp"
     cidr_blocks = [aws_vpc.cloudx.cidr_block]
-  }
-  ingress {
-    from_port       = 2368
-    to_port         = 2368
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb]
   }
   egress {
     from_port   = 0
@@ -88,6 +81,16 @@ resource "aws_security_group" "ec2_pool" {
   }
 }
 
+resource "aws_security_group_rule" "ec2_pool_rule" {
+  from_port                = 2368
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ec2_pool.id
+  source_security_group_id = aws_security_group.alb.id
+  to_port                  = 2368
+  type                     = "ingress"
+}
+
+
 resource "aws_security_group" "alb" {
   name        = "alb"
   vpc_id      = "${aws_vpc.cloudx.id}"
@@ -100,15 +103,19 @@ resource "aws_security_group" "alb" {
       "0.0.0.0/0"
     ]
   }
-  egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    security_groups = [aws_security_group.ec2_pool]
-  }
+
   tags = {
     Name = "alb"
   }
+}
+
+resource "aws_security_group_rule" "alb_pool_rule" {
+  from_port                = "-1"
+  protocol                 = "-1"
+  security_group_id        = aws_security_group.alb.id
+  source_security_group_id = aws_security_group.ec2_pool.id
+  to_port                  = "-1"
+  type                     = "egress"
 }
 
 resource "aws_security_group" "efs" {
@@ -119,7 +126,7 @@ resource "aws_security_group" "efs" {
     from_port       = 2049
     to_port         = 2049
     protocol        = "tcp"
-    security_groups = [aws_security_group.ec2_pool]
+    security_groups = [aws_security_group.ec2_pool.id]
   }
   egress {
     from_port   = 0
