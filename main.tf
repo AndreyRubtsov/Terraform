@@ -229,6 +229,26 @@ resource "aws_iam_role" "ghost_app_role" {
   "Statement": [
     {
       "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      }
+      }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "ghost_app_policy" {
+  name = "ghost_app_policy"
+  role = aws_iam_role.ghost_app_role.id
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
       "Action": "ec2:Describe*",
       "Resource": ["*"]
     },
@@ -252,11 +272,11 @@ resource "aws_iam_role" "ghost_app_role" {
 EOF
 }
 
-resource "aws_iam_instance_profile" "kube_control_plane_profile" {
+
+resource "aws_iam_instance_profile" "ghost_app" {
   name = "ghost_app"
   role = aws_iam_role.ghost_app_role.name
 }
-
 
 
 #Add AWS Policies for Kubernetes
