@@ -5,25 +5,6 @@ provider "aws" {
 }
 
 
-##creating node#########################################################################################################
-#
-#resource "aws_instance" "bastion" {
-#  count                  = 1
-#  ami                    = "ami-00399ec92321828f5"
-#  instance_type          = "t2.micro"
-#  key_name               = "undrey"
-#  subnet_id              = "${aws_subnet.subnet-undrey-public.id}"
-#  private_ip             = "10.0.1.10"
-#  vpc_security_group_ids = [
-#    aws_security_group.undrey_security_group.id
-#  ]
-#  tags = {
-#    Name = "ansible"
-#  }
-#
-#}
-
-
 resource "aws_key_pair" "ghost-ec2-pool" {
   key_name   = "ghost-ec2-pool"
   public_key = var.aws_public_key
@@ -337,7 +318,7 @@ resource "aws_efs_mount_target" "efs_mount_subnet_c" {
   security_groups = [aws_security_group.efs.id]
 }
 
-#####creating alb#################################
+#####creating alb#######################################################################################################
 
 resource "aws_lb" "ghost_lb" {
   name               = "ghost-lb"
@@ -370,3 +351,19 @@ resource "aws_lb_listener" "front_end" {
 }
 
 
+#####creating template##################################################################################################
+resource "aws_launch_template" "ghost" {
+  name = "ghost"
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ghost_app.arn
+  }
+  image_id      = "ami-0e2031728ef69a466"
+  instance_type = "t2.micro"
+  key_name      = "ghost-ec2-pool"
+  network_interfaces {
+    subnet_id = aws_subnet.public_a.id
+  }
+
+  vpc_security_group_ids = [aws_security_group.ec2_pool.id]
+  user_data              = filebase64("${path.module}/initial_script.sh")
+}
