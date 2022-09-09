@@ -355,7 +355,7 @@ resource "aws_lb_listener" "front_end" {
 resource "aws_launch_template" "ghost" {
   name = "ghost"
   iam_instance_profile {
-    name = aws_iam_instance_profile.ghost_app.arn
+    name = aws_iam_instance_profile.ghost_app.name
   }
   image_id      = "ami-0e2031728ef69a466"
   instance_type = "t2.micro"
