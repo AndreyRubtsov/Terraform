@@ -288,120 +288,85 @@ resource "aws_efs_access_point" "efs_access_point" {
   file_system_id = aws_efs_file_system.ghost_content.id
 }
 
-resource "aws_efs_file_system_policy" "policy" {
-  file_system_id = aws_efs_file_system.ghost_content.id
-# The EFS System Policy allows clients to mount, read and perform
-# write operations on File system
-# The communication of client and EFS is set using aws:secureTransport Option
-  policy = <<POLICY
-{
-    "Version": "2012-10-17",
-    "Id": "Policy01",
-    "Statement": [
-        {
-            "Sid": "Statement",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "*"
-            },
-            "Resource": "${aws_efs_file_system.ghost_content.arn}",
-            "Action": [
-                "elasticfilesystem:ClientMount",
-                "elasticfilesystem:ClientRootAccess",
-                "elasticfilesystem:ClientWrite"
-            ],
-            "Condition": {
-                "Bool": {
-                    "aws:SecureTransport": "false"
-                }
-            }
-        }
-    ]
-}
-POLICY
-}
+#resource "aws_efs_file_system_policy" "policy" {
+#  file_system_id = aws_efs_file_system.ghost_content.id
+## The EFS System Policy allows clients to mount, read and perform
+## write operations on File system
+## The communication of client and EFS is set using aws:secureTransport Option
+#  policy = <<POLICY
+#{
+#    "Version": "2012-10-17",
+#    "Id": "Policy01",
+#    "Statement": [
+#        {
+#            "Sid": "Statement",
+#            "Effect": "Allow",
+#            "Principal": {
+#                "AWS": "*"
+#            },
+#            "Resource": "${aws_efs_file_system.ghost_content.arn}",
+#            "Action": [
+#                "elasticfilesystem:ClientMount",
+#                "elasticfilesystem:ClientRootAccess",
+#                "elasticfilesystem:ClientWrite"
+#            ],
+#            "Condition": {
+#                "Bool": {
+#                    "aws:SecureTransport": "false"
+#                }
+#            }
+#        }
+#    ]
+#}
+#POLICY
+#}
 
 resource "aws_efs_mount_target" "efs_mount_subnet_a" {
-  file_system_id = aws_efs_file_system.ghost_content.id
-  subnet_id      = aws_subnet.public_a.id
+  file_system_id  = aws_efs_file_system.ghost_content.id
+  subnet_id       = aws_subnet.public_a.id
   security_groups = [aws_security_group.efs.id]
 }
 resource "aws_efs_mount_target" "efs_mount_subnet_b" {
-  file_system_id = aws_efs_file_system.ghost_content.id
-  subnet_id      = aws_subnet.public_b.id
+  file_system_id  = aws_efs_file_system.ghost_content.id
+  subnet_id       = aws_subnet.public_b.id
   security_groups = [aws_security_group.efs.id]
 }
 resource "aws_efs_mount_target" "efs_mount_subnet_c" {
-  file_system_id = aws_efs_file_system.ghost_content.id
-  subnet_id      = aws_subnet.public_c.id
+  file_system_id  = aws_efs_file_system.ghost_content.id
+  subnet_id       = aws_subnet.public_c.id
   security_groups = [aws_security_group.efs.id]
 }
 
-#####creating elb#################################
+#####creating alb#################################
+
+resource "aws_lb" "ghost_lb" {
+  name               = "ghost-lb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb.id]
+  subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id, aws_subnet.public_c.id]
+
+}
+
+resource "aws_lb_target_group" "ghost-ec2" {
+  name     = "ghost-ec2"
+  port     = 2368
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.cloudx.id
+}
+
+resource "aws_lb_listener" "front_end" {
+  load_balancer_arn = aws_lb.ghost_lb.arn
+  port              = "80"
+  default_action {
+    type = "forward"
+    forward {
+      target_group {
+        arn    = aws_lb_target_group.ghost-ec2.arn
+        weight = 100
+      }
+    }
+  }
+}
 
 
-#resource "aws_security_group" "aws-elb" {
-#  name   = "kubernetes-undrey-securitygroup-elb"
-#  vpc_id = "${aws_vpc.vpc-undrey.id}"
-#
-#  tags = {
-#    Name = "kubernetes-undrey-securitygroup-elb"
-#  }
-#}
-#
-#resource "aws_security_group_rule" "aws-allow-api-access" {
-#  type              = "ingress"
-#  from_port         = 6443
-#  to_port           = 6443
-#  protocol          = "TCP"
-#  cidr_blocks       = ["0.0.0.0/0"]
-#  security_group_id = aws_security_group.aws-elb.id
-#}
-#
-#resource "aws_security_group_rule" "aws-allow-api-egress" {
-#  type              = "egress"
-#  from_port         = 0
-#  to_port           = 65535
-#  protocol          = "TCP"
-#  cidr_blocks       = ["0.0.0.0/0"]
-#  security_group_id = aws_security_group.aws-elb.id
-#}
-#
-## Create a new AWS ELB for K8S API
-#resource "aws_elb" "aws-elb-api" {
-#  name            = "kubernetes-elb-undrey"
-#  subnets         = aws_subnet.subnet-undrey-public.*.id
-#  security_groups = [aws_security_group.aws-elb.id]
-#
-#  listener {
-#    instance_port     = 6443
-#    instance_protocol = "tcp"
-#    lb_port           = 6443
-#    lb_protocol       = "tcp"
-#  }
-#
-#  health_check {
-#    healthy_threshold   = 2
-#    unhealthy_threshold = 2
-#    timeout             = 3
-#    target              = "HTTPS:6443/healthz"
-#    interval            = 30
-#  }
-#
-#  cross_zone_load_balancing   = true
-#  idle_timeout                = 400
-#  connection_draining         = true
-#  connection_draining_timeout = 400
-#
-#  tags = {
-#    Name = "kubernetes-undrey-elb-api"
-#  }
-#}
-#
-#resource "aws_elb_attachment" "attach_master_nodes" {
-#  count    = 1
-#  elb      = "${aws_elb.aws-elb-api.id}"
-#  instance = "${aws_instance.node1[0].id}"
-#}
-#
-#
