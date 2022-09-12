@@ -366,3 +366,35 @@ resource "aws_launch_template" "ghost" {
   }
   user_data = filebase64("${path.module}/initial_script.sh")
 }
+
+#####creating asg#######################################################################################################
+resource "aws_autoscaling_group" "ghost_ec2_pool" {
+  name                = "ghost_ec2_pool"
+  vpc_zone_identifier = [aws_subnet.public_a.id, aws_subnet.public_b.id, aws_subnet.public_c.id]
+  #availability_zones = [aws_subnet.public_a.availability_zone,aws_subnet.public_b.availability_zone,aws_subnet.public_c.availability_zone]
+  desired_capacity    = 1
+  max_size            = 1
+  min_size            = 1
+  target_group_arns   = [aws_lb_target_group.ghost-ec2.arn]
+  launch_template {
+    id      = aws_launch_template.ghost.id
+    version = "$Latest"
+  }
+}
+
+#####creating bastion###################################################################################################
+resource "aws_instance" "bastion" {
+  count                       = 1
+  ami                         = "ami-0e2031728ef69a466"
+  associate_public_ip_address = true
+  instance_type               = "t2.micro"
+  key_name                    = "ghost-ec2-pool"
+  subnet_id                   = aws_subnet.public_a.id
+  vpc_security_group_ids      = [
+    aws_security_group.bastion.id
+  ]
+  iam_instance_profile = aws_iam_instance_profile.ghost_app.name
+  tags                 = {
+    Name = "bastion"
+  }
+}
