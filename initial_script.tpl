@@ -2,7 +2,7 @@
 
 exec > >(tee /var/log/cloud-init-output.log|logger -t user-data -s 2>/dev/console) 2>&1
 ### Update this to match your ALB DNS name
-LB_DNS_NAME='url.region.elb.amazonaws.com'
+echo ${LB_DNS_NAME} >> /tmp/dns_name
 ###
 
 REGION=$(/usr/bin/curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/[a-z]$//')

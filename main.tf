@@ -364,7 +364,12 @@ resource "aws_launch_template" "ghost" {
     #subnet_id       = aws_subnet.public_a.id
     security_groups = [aws_security_group.ec2_pool.id]
   }
-  user_data = filebase64("${path.module}/initial_script.sh")
+  user_data = base64encode(templatefile("initial_script.tpl",
+    {
+      LB_DNS_NAME = "${aws_lb.ghost_lb.dns_name}"
+    }
+  ))
+
 }
 
 #####creating asg#######################################################################################################
