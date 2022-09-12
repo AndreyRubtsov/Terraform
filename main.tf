@@ -361,9 +361,8 @@ resource "aws_launch_template" "ghost" {
   instance_type = "t2.micro"
   key_name      = "ghost-ec2-pool"
   network_interfaces {
-    subnet_id = aws_subnet.public_a.id
+    #subnet_id       = aws_subnet.public_a.id
+    security_groups = [aws_security_group.ec2_pool.id]
   }
-
-  vpc_security_group_ids = [aws_security_group.ec2_pool.id]
-  user_data              = filebase64("${path.module}/initial_script.sh")
+  user_data = filebase64("${path.module}/initial_script.sh")
 }
