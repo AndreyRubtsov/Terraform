@@ -461,6 +461,7 @@ resource "aws_db_instance" "ghost" {
   password             = "foobarbaz"
   db_subnet_group_name = aws_db_subnet_group.ghost.name
   vpc_security_group_ids = [aws_security_group.mysql.id]
+  skip_final_snapshot  = true
 }
 
 resource "aws_db_subnet_group" "ghost" {
