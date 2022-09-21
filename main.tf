@@ -416,6 +416,75 @@ resource "aws_iam_instance_profile" "ghost_app" {
   role = aws_iam_role.ghost_app_role.name
 }
 
+
+resource "aws_iam_role" "ghost_ecs_role" {
+  name = "ghost_ecs_role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      }
+      }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "ghost_ecs_policy" {
+  name = "ghost_ecs_policy"
+  role = aws_iam_role.ghost_ecs_role.id
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "ecr:BatchCheckLayerAvailability",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "ecr:GetDownloadUrlForLayer",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "ecr:BatchGetImage",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "elasticfilesystem:DescribeFileSystems",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "elasticfilesystem:ClientMount",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "elasticfilesystem:ClientWrite",
+      "Resource": ["*"]
+    }
+  ]
+}
+EOF
+}
+
+
 #####EFS################################################################################################################
 resource "aws_efs_file_system" "ghost_content" {
   tags = {
@@ -592,3 +661,11 @@ resource "aws_ssm_parameter" "dbsecret" {
   type        = "SecureString"
   value       = var.db_password
 }
+
+#####creating ECR#######################################################################################################
+#resource "aws_ecr_repository" "ghost" {
+#  name = "ghost"
+#  image_scanning_configuration {
+#    scan_on_push = false
+#  }
+#}
