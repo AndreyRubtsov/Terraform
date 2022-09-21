@@ -52,6 +52,38 @@ resource "aws_subnet" "public_c" {
   }
 }
 
+
+resource "aws_subnet" "private_db_a" {
+  vpc_id                  = "${aws_vpc.cloudx.id}"
+  cidr_block              = "10.10.20.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1a"
+  tags                    = {
+    Name = "private_db_a"
+  }
+}
+
+resource "aws_subnet" "private_db_b" {
+  vpc_id                  = "${aws_vpc.cloudx.id}"
+  cidr_block              = "10.10.21.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1b"
+  tags                    = {
+    Name = "private_db_b"
+  }
+}
+
+resource "aws_subnet" "private_db_c" {
+  vpc_id                  = "${aws_vpc.cloudx.id}"
+  cidr_block              = "10.10.22.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1c"
+  tags                    = {
+    Name = "private_db_c"
+  }
+}
+
+
 resource "aws_internet_gateway" "cloudx-igw" {
   vpc_id = "${aws_vpc.cloudx.id}"
   tags   = {
@@ -195,6 +227,21 @@ resource "aws_security_group" "efs" {
   }
   tags = {
     Name = "efs"
+  }
+}
+
+resource "aws_security_group" "mysql" {
+  name        = "mysql"
+  vpc_id      = "${aws_vpc.cloudx.id}"
+  description = "defines access to ghost db"
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ec2_pool.id]
+  }
+  tags = {
+    Name = "mysql"
   }
 }
 
@@ -401,5 +448,26 @@ resource "aws_instance" "bastion" {
   iam_instance_profile = aws_iam_instance_profile.ghost_app.name
   tags                 = {
     Name = "bastion"
+  }
+}
+#####creating rds#######################################################################################################
+resource "aws_db_instance" "ghost" {
+  allocated_storage    = 20
+  db_name              = "ghost"
+  engine               = "mysql"
+  engine_version       = "8.0"
+  instance_class       = "db.t2.micro"
+  username             = "foo"
+  password             = "foobarbaz"
+  db_subnet_group_name = aws_db_subnet_group.ghost.name
+  vpc_security_group_ids = [aws_security_group.mysql.id]
+}
+
+resource "aws_db_subnet_group" "ghost" {
+  name        = "ghost"
+  description = "ghost database subnet group"
+  subnet_ids  = [aws_subnet.private_db_a.id, aws_subnet.private_db_b.id, aws_subnet.private_db_c.id]
+  tags        = {
+    Name = "ghost"
   }
 }
