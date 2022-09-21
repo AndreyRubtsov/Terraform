@@ -583,10 +583,11 @@ resource "aws_lb_target_group" "ghost-ec2" {
   vpc_id   = aws_vpc.cloudx.id
 }
 resource "aws_lb_target_group" "ghost-fargate" {
-  name     = "ghost-fargate"
-  port     = 2368
-  protocol = "HTTP"
-  vpc_id   = aws_vpc.cloudx.id
+  name        = "ghost-fargate"
+  port        = 2368
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.cloudx.id
 }
 
 
@@ -619,7 +620,6 @@ resource "aws_launch_template" "ghost" {
   instance_type = "t2.micro"
   key_name      = "ghost-ec2-pool"
   network_interfaces {
-    #subnet_id       = aws_subnet.public_a.id
     security_groups = [aws_security_group.ec2_pool.id]
   }
   user_data = base64encode(templatefile("initial_script.tpl",
@@ -764,5 +764,85 @@ resource "aws_vpc_endpoint" "logs" {
   ]
   tags = {
     Name = "cw logs"
+  }
+}
+
+#####creating ECS#######################################################################################################
+resource "aws_ecs_cluster" "ghost" {
+  name = "ghost"
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+}
+
+resource "aws_ecs_task_definition" "task_def_ghost" {
+  family                   = "task_def_ghost"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = 256
+  memory                   = 1024
+  task_role_arn            = aws_iam_role.ghost_ecs_role.arn
+  execution_role_arn       = aws_iam_role.ghost_ecs_role.arn
+
+  container_definitions = <<TASK_DEFINITION
+[
+    {
+    "name": "ghost_container",
+    "image": "${var.ecr_image}",
+    "essential": true,
+    "environment": [
+        { "name" : "database__client", "value" : "mysql"},
+        { "name" : "database__connection__host", "value" : "${aws_db_instance.ghost.address}"},
+        { "name" : "database__connection__user", "value" : "${var.db_user}"},
+        { "name" : "database__connection__password", "value" : "${var.db_password}"},
+        { "name" : "database__connection__database", "value" : "${var.db_name}"}
+    ],
+    "mountPoints": [
+        {
+            "containerPath": "/var/lib/ghost/content",
+            "sourceVolume": "ghost_volume"
+        }
+    ],
+    "portMappings": [
+        {
+        "containerPort": 2368,
+        "hostPort": 2368
+        }
+    ]
+    }
+]
+TASK_DEFINITION
+  volume {
+    name = "ghost_volume"
+    efs_volume_configuration {
+      file_system_id = aws_efs_file_system.ghost_content.id
+      root_directory = "/"
+      #      transit_encryption      = "ENABLED"
+      #      transit_encryption_port = 2999
+      #      authorization_config {
+      #        access_point_id = aws_efs_access_point.efs_access_point.id
+      #        iam             = "ENABLED"
+      #      }
+    }
+  }
+
+}
+
+resource "aws_ecs_service" "ghost" {
+  name            = "ghost"
+  cluster         = aws_ecs_cluster.ghost.id
+  task_definition = aws_ecs_task_definition.task_def_ghost.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ghost-fargate.arn
+    container_name   = "ghost_container"
+    container_port   = 2368
+  }
+  network_configuration {
+    assign_public_ip = false
+    subnets          = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.private_c.id]
+    security_groups  = [aws_security_group.fargate_pool.id]
   }
 }

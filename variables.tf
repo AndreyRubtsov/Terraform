@@ -27,3 +27,8 @@ variable "db_name" {
   description = "mysql dbname"
   type        = string
 }
+
+variable "ecr_image" {
+  description = "ecr image"
+  type        = string
+}
