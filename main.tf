@@ -341,6 +341,27 @@ resource "aws_security_group" "fargate_pool" {
   }
 }
 
+resource "aws_security_group" "vpc_endpoint" {
+  name        = "vpc_endpoint"
+  vpc_id      = "${aws_vpc.cloudx.id}"
+  description = "allows access to vpc endpoints"
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "vpc_endpoint"
+  }
+}
+
 #####Role###############################################################################################################
 
 resource "aws_iam_role" "ghost_app_role" {
@@ -680,3 +701,68 @@ resource "aws_ssm_parameter" "dbsecret" {
 #    scan_on_push = false
 #  }
 #}
+#####creating VPC Endpoint##############################################################################################
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id          = aws_vpc.cloudx.id
+  service_name    = "com.amazonaws.eu-central-1.s3"
+  route_table_ids = [aws_route_table.private_rt.id]
+  tags            = {
+    Name = "s3g"
+  }
+}
+resource "aws_vpc_endpoint" "s3i" {
+  vpc_id             = aws_vpc.cloudx.id
+  service_name       = "com.amazonaws.eu-central-1.s3"
+  vpc_endpoint_type  = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  tags = {
+    Name = "s3i"
+  }
+}
+resource "aws_vpc_endpoint" "ssm" {
+  vpc_id             = aws_vpc.cloudx.id
+  service_name       = "com.amazonaws.eu-central-1.ssm"
+  vpc_endpoint_type  = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  tags = {
+    Name = "ssm"
+  }
+}
+resource "aws_vpc_endpoint" "ecr" {
+  vpc_id             = aws_vpc.cloudx.id
+  service_name       = "com.amazonaws.eu-central-1.ecr.api"
+  vpc_endpoint_type  = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  tags = {
+    Name = "ecr"
+  }
+}
+resource "aws_vpc_endpoint" "efs" {
+  vpc_id             = aws_vpc.cloudx.id
+  service_name       = "com.amazonaws.eu-central-1.elasticfilesystem"
+  vpc_endpoint_type  = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  tags = {
+    Name = "efs"
+  }
+}
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id             = aws_vpc.cloudx.id
+  service_name       = "com.amazonaws.eu-central-1.logs"
+  vpc_endpoint_type  = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  tags = {
+    Name = "cw logs"
+  }
+}
