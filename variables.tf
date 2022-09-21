@@ -12,3 +12,8 @@ variable "aws_public_key" {
   description = "aws public key"
   type        = string
 }
+
+variable "db_password" {
+  description = "mysql password"
+  type        = string
+}

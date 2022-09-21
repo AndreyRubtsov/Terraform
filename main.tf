@@ -452,16 +452,16 @@ resource "aws_instance" "bastion" {
 }
 #####creating rds#######################################################################################################
 resource "aws_db_instance" "ghost" {
-  allocated_storage    = 20
-  db_name              = "ghost"
-  engine               = "mysql"
-  engine_version       = "8.0"
-  instance_class       = "db.t2.micro"
-  username             = "foo"
-  password             = "foobarbaz"
-  db_subnet_group_name = aws_db_subnet_group.ghost.name
+  allocated_storage      = 20
+  db_name                = "ghost"
+  engine                 = "mysql"
+  engine_version         = "8.0"
+  instance_class         = "db.t2.micro"
+  username               = "master"
+  password               = var.db_password
+  db_subnet_group_name   = aws_db_subnet_group.ghost.name
   vpc_security_group_ids = [aws_security_group.mysql.id]
-  skip_final_snapshot  = true
+  skip_final_snapshot    = true
 }
 
 resource "aws_db_subnet_group" "ghost" {
@@ -471,4 +471,11 @@ resource "aws_db_subnet_group" "ghost" {
   tags        = {
     Name = "ghost"
   }
+}
+#####creating ssm parameter store#######################################################################################
+resource "aws_ssm_parameter" "dbsecret" {
+  name        = "/ghost/dbpassw"
+  description = "Password for mysql"
+  type        = "SecureString"
+  value       = var.db_password
 }
