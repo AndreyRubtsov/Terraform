@@ -449,7 +449,7 @@ resource "aws_iam_role" "ghost_ecs_role" {
       "Effect": "Allow",
       "Action": "sts:AssumeRole",
       "Principal": {
-        "Service": "ec2.amazonaws.com"
+        "Service": "ecs-tasks.amazonaws.com"
       }
       }
   ]
