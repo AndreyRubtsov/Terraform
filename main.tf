@@ -292,6 +292,21 @@ resource "aws_iam_role_policy" "ghost_app_policy" {
     },
     {
       "Effect": "Allow",
+      "Action": "ssm:GetParameter*",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "secretsmanager:GetSecretValue",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": "kms:Decrypt",
+      "Resource": ["*"]
+    },
+    {
+      "Effect": "Allow",
       "Action": "elasticfilesystem:ClientWrite",
       "Resource": ["*"]
     }
