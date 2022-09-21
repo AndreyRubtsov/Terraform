@@ -429,6 +429,9 @@ resource "aws_launch_template" "ghost" {
   user_data = base64encode(templatefile("initial_script.tpl",
     {
       LB_DNS_NAME = "${aws_lb.ghost_lb.dns_name}"
+      DB_URL      = "${aws_db_instance.ghost.address}"
+      DB_USER     = var.db_user
+      DB_NAME     = var.db_name
     }
   ))
 
@@ -468,11 +471,11 @@ resource "aws_instance" "bastion" {
 #####creating rds#######################################################################################################
 resource "aws_db_instance" "ghost" {
   allocated_storage      = 20
-  db_name                = "ghost"
+  db_name                = var.db_name
   engine                 = "mysql"
   engine_version         = "8.0"
   instance_class         = "db.t2.micro"
-  username               = "master"
+  username               = var.db_user
   password               = var.db_password
   db_subnet_group_name   = aws_db_subnet_group.ghost.name
   vpc_security_group_ids = [aws_security_group.mysql.id]
