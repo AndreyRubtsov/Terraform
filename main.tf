@@ -561,6 +561,13 @@ resource "aws_lb_target_group" "ghost-ec2" {
   protocol = "HTTP"
   vpc_id   = aws_vpc.cloudx.id
 }
+resource "aws_lb_target_group" "ghost-fargate" {
+  name     = "ghost-fargate"
+  port     = 2368
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.cloudx.id
+}
+
 
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.ghost_lb.arn
@@ -570,7 +577,11 @@ resource "aws_lb_listener" "front_end" {
     forward {
       target_group {
         arn    = aws_lb_target_group.ghost-ec2.arn
-        weight = 100
+        weight = 50
+      }
+      target_group {
+        arn    = aws_lb_target_group.ghost-fargate.arn
+        weight = 50
       }
     }
   }
