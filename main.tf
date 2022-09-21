@@ -83,6 +83,34 @@ resource "aws_subnet" "private_db_c" {
   }
 }
 
+resource "aws_subnet" "private_a" {
+  vpc_id                  = "${aws_vpc.cloudx.id}"
+  cidr_block              = "10.10.10.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1a"
+  tags                    = {
+    Name = "private_a"
+  }
+}
+resource "aws_subnet" "private_b" {
+  vpc_id                  = "${aws_vpc.cloudx.id}"
+  cidr_block              = "10.10.11.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1b"
+  tags                    = {
+    Name = "private_b"
+  }
+}
+resource "aws_subnet" "private_c" {
+  vpc_id                  = "${aws_vpc.cloudx.id}"
+  cidr_block              = "10.10.12.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1c"
+  tags                    = {
+    Name = "private_c"
+  }
+}
+
 
 resource "aws_internet_gateway" "cloudx-igw" {
   vpc_id = "${aws_vpc.cloudx.id}"
@@ -115,6 +143,38 @@ resource "aws_route_table_association" "public_rt_subnet_c" {
   route_table_id = "${aws_route_table.public_rt.id}"
 }
 
+
+resource "aws_route_table" "private_rt" {
+  vpc_id = "${aws_vpc.cloudx.id}"
+  tags   = {
+    Name = "private_rt"
+  }
+}
+resource "aws_route_table_association" "private_rt_subnet_a" {
+  subnet_id      = "${aws_subnet.private_a.id}"
+  route_table_id = "${aws_route_table.private_rt.id}"
+}
+
+resource "aws_route_table_association" "private_rt_subnet_b" {
+  subnet_id      = "${aws_subnet.private_b.id}"
+  route_table_id = "${aws_route_table.private_rt.id}"
+}
+resource "aws_route_table_association" "private_rt_subnet_c" {
+  subnet_id      = "${aws_subnet.private_c.id}"
+  route_table_id = "${aws_route_table.private_rt.id}"
+}
+resource "aws_route_table_association" "private_rt_db_subnet_a" {
+  subnet_id      = "${aws_subnet.private_db_a.id}"
+  route_table_id = "${aws_route_table.private_rt.id}"
+}
+resource "aws_route_table_association" "private_rt_db_subnet_b" {
+  subnet_id      = "${aws_subnet.private_db_b.id}"
+  route_table_id = "${aws_route_table.private_rt.id}"
+}
+resource "aws_route_table_association" "private_rt_db_subnet_c" {
+  subnet_id      = "${aws_subnet.private_db_c.id}"
+  route_table_id = "${aws_route_table.private_rt.id}"
+}
 ####Security Groups#####################################################################################################
 
 
@@ -134,9 +194,7 @@ resource "aws_security_group" "bastion" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
     Name = "bastion"
@@ -163,9 +221,7 @@ resource "aws_security_group" "ec2_pool" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
+    cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
     Name = "ec2_pool"
@@ -190,9 +246,7 @@ resource "aws_security_group" "alb" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
@@ -230,6 +284,15 @@ resource "aws_security_group" "efs" {
   }
 }
 
+resource "aws_security_group_rule" "efs_pool_rule" {
+  from_port                = "2049"
+  to_port                  = "2049"
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.efs.id
+  source_security_group_id = aws_security_group.fargate_pool.id
+  type                     = "ingress"
+}
+
 resource "aws_security_group" "mysql" {
   name        = "mysql"
   vpc_id      = "${aws_vpc.cloudx.id}"
@@ -240,11 +303,43 @@ resource "aws_security_group" "mysql" {
     protocol        = "tcp"
     security_groups = [aws_security_group.ec2_pool.id]
   }
+  ingress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.fargate_pool.id]
+  }
   tags = {
     Name = "mysql"
   }
 }
 
+resource "aws_security_group" "fargate_pool" {
+  name        = "fargate_pool"
+  vpc_id      = "${aws_vpc.cloudx.id}"
+  description = "Allows access for Fargate instances"
+  ingress {
+    from_port       = 2049
+    to_port         = 2049
+    protocol        = "tcp"
+    security_groups = [aws_security_group.efs.id]
+  }
+  ingress {
+    from_port       = 2368
+    to_port         = 2368
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "fargate_pool"
+  }
+}
 
 #####Role###############################################################################################################
 
