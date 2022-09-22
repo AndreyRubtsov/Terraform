@@ -695,6 +695,7 @@ resource "aws_vpc_endpoint" "s3i" {
   vpc_id             = aws_vpc.cloudx.id
   service_name       = "com.amazonaws.eu-central-1.s3"
   vpc_endpoint_type  = "Interface"
+  subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.private_c.id]
   security_group_ids = [
     aws_security_group.vpc_endpoint.id,
   ]
@@ -707,6 +708,7 @@ resource "aws_vpc_endpoint" "ssm" {
   vpc_id             = aws_vpc.cloudx.id
   service_name       = "com.amazonaws.eu-central-1.ssm"
   vpc_endpoint_type  = "Interface"
+  subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.private_c.id]
   security_group_ids = [
     aws_security_group.vpc_endpoint.id,
   ]
@@ -719,6 +721,7 @@ resource "aws_vpc_endpoint" "ecr" {
   vpc_id             = aws_vpc.cloudx.id
   service_name       = "com.amazonaws.eu-central-1.ecr.api"
   vpc_endpoint_type  = "Interface"
+  subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.private_c.id]
   security_group_ids = [
     aws_security_group.vpc_endpoint.id,
   ]
@@ -731,6 +734,7 @@ resource "aws_vpc_endpoint" "ecrd" {
   vpc_id             = aws_vpc.cloudx.id
   service_name       = "com.amazonaws.eu-central-1.ecr.dkr"
   vpc_endpoint_type  = "Interface"
+  subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.private_c.id]
   security_group_ids = [
     aws_security_group.vpc_endpoint.id,
   ]
@@ -743,6 +747,7 @@ resource "aws_vpc_endpoint" "efs" {
   vpc_id             = aws_vpc.cloudx.id
   service_name       = "com.amazonaws.eu-central-1.elasticfilesystem"
   vpc_endpoint_type  = "Interface"
+  subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.private_c.id]
   security_group_ids = [
     aws_security_group.vpc_endpoint.id,
   ]
@@ -755,6 +760,7 @@ resource "aws_vpc_endpoint" "efsf" {
   vpc_id             = aws_vpc.cloudx.id
   service_name       = "com.amazonaws.eu-central-1.elasticfilesystem-fips"
   vpc_endpoint_type  = "Interface"
+  subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.private_c.id]
   security_group_ids = [
     aws_security_group.vpc_endpoint.id,
   ]
@@ -767,6 +773,7 @@ resource "aws_vpc_endpoint" "logs" {
   vpc_id             = aws_vpc.cloudx.id
   service_name       = "com.amazonaws.eu-central-1.logs"
   vpc_endpoint_type  = "Interface"
+  subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.private_c.id]
   security_group_ids = [
     aws_security_group.vpc_endpoint.id,
   ]
@@ -825,12 +832,12 @@ TASK_DEFINITION
   volume {
     name = "ghost_volume"
     efs_volume_configuration {
-      file_system_id = aws_efs_file_system.ghost_content.id
-      root_directory = "/"
-            transit_encryption      = "ENABLED"
-            authorization_config {
-              access_point_id = aws_efs_access_point.efs_access_point.id
-            }
+      file_system_id     = aws_efs_file_system.ghost_content.id
+      root_directory     = "/"
+      transit_encryption = "ENABLED"
+      authorization_config {
+        access_point_id = aws_efs_access_point.efs_access_point.id
+      }
     }
   }
 
