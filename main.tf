@@ -618,7 +618,6 @@ resource "aws_launch_template" "ghost" {
 resource "aws_autoscaling_group" "ghost_ec2_pool" {
   name                = "ghost_ec2_pool"
   vpc_zone_identifier = [aws_subnet.public_a.id, aws_subnet.public_b.id, aws_subnet.public_c.id]
-  #availability_zones = [aws_subnet.public_a.availability_zone,aws_subnet.public_b.availability_zone,aws_subnet.public_c.availability_zone]
   desired_capacity    = 2
   max_size            = 2
   min_size            = 1
