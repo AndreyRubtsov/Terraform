@@ -254,7 +254,7 @@ resource "aws_security_group" "alb" {
   }
 }
 
-resource "aws_security_group_rule" "alb_pool_rule" {
+resource "aws_security_group_rule" "alb_pool_rule1" {
   from_port                = "-1"
   protocol                 = "-1"
   security_group_id        = aws_security_group.alb.id
@@ -262,6 +262,16 @@ resource "aws_security_group_rule" "alb_pool_rule" {
   to_port                  = "-1"
   type                     = "egress"
 }
+
+resource "aws_security_group_rule" "alb_pool_rule2" {
+  from_port                = "-1"
+  protocol                 = "-1"
+  security_group_id        = aws_security_group.alb.id
+  source_security_group_id = aws_security_group.fargate_pool.id
+  to_port                  = "-1"
+  type                     = "egress"
+}
+
 
 resource "aws_security_group" "efs" {
   name        = "efs"
@@ -325,7 +335,7 @@ resource "aws_security_group" "fargate_pool" {
     security_groups = [aws_security_group.efs.id]
   }
   ingress {
-    from_port       = 80
+    from_port       = 2368
     to_port         = 2368
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
@@ -393,37 +403,15 @@ resource "aws_iam_role_policy" "ghost_app_policy" {
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": "ec2:Describe*",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "elasticfilesystem:DescribeFileSystems",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "elasticfilesystem:ClientMount",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "ssm:GetParameter*",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "secretsmanager:GetSecretValue",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "kms:Decrypt",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "elasticfilesystem:ClientWrite",
+      "Action": [
+                "ec2:Describe*",
+                "elasticfilesystem:DescribeFileSystems",
+                "elasticfilesystem:ClientMount",
+                "ssm:GetParameter*",
+                "secretsmanager:GetSecretValue",
+                "kms:Decrypt",
+                "elasticfilesystem:ClientWrite"
+      ],
       "Resource": ["*"]
     }
   ]
@@ -821,8 +809,8 @@ resource "aws_ecs_task_definition" "task_def_ghost" {
     ],
     "portMappings": [
         {
-        "containerPort": 80,
-        "hostPort": 80
+        "containerPort": 2368,
+        "hostPort": 2368
         }
     ]
     }
@@ -851,7 +839,7 @@ resource "aws_ecs_service" "ghost" {
   load_balancer {
     target_group_arn = aws_lb_target_group.ghost-fargate.arn
     container_name   = "ghost_container"
-    container_port   = 80
+    container_port   = 2368
   }
   network_configuration {
     assign_public_ip = false
