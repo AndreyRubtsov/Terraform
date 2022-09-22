@@ -463,7 +463,9 @@ resource "aws_iam_role_policy" "ghost_ecs_policy" {
                 "ecr:BatchCheckLayerAvailability",
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchGetImage",
-                "elasticfilesystem:*",
+                "elasticfilesystem:DescribeFileSystems",
+                "elasticfilesystem:ClientMount",
+                "elasticfilesystem:ClientWrite",ECS
                 "logs:CreateLogStream",
                 "logs:PutLogEvents"
             ],
