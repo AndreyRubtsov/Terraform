@@ -485,39 +485,6 @@ resource "aws_efs_access_point" "efs_access_point" {
   file_system_id = aws_efs_file_system.ghost_content.id
 }
 
-#resource "aws_efs_file_system_policy" "policy" {
-#  file_system_id = aws_efs_file_system.ghost_content.id
-## The EFS System Policy allows clients to mount, read and perform
-## write operations on File system
-## The communication of client and EFS is set using aws:secureTransport Option
-#  policy = <<POLICY
-#{
-#    "Version": "2012-10-17",
-#    "Id": "Policy01",
-#    "Statement": [
-#        {
-#            "Sid": "Statement",
-#            "Effect": "Allow",
-#            "Principal": {
-#                "AWS": "*"
-#            },
-#            "Resource": "${aws_efs_file_system.ghost_content.arn}",
-#            "Action": [
-#                "elasticfilesystem:ClientMount",
-#                "elasticfilesystem:ClientRootAccess",
-#                "elasticfilesystem:ClientWrite"
-#            ],
-#            "Condition": {
-#                "Bool": {
-#                    "aws:SecureTransport": "false"
-#                }
-#            }
-#        }
-#    ]
-#}
-#POLICY
-#}
-
 resource "aws_efs_mount_target" "efs_mount_subnet_a" {
   file_system_id  = aws_efs_file_system.ghost_content.id
   subnet_id       = aws_subnet.public_a.id
