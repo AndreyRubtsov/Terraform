@@ -23,7 +23,7 @@ resource "aws_vpc" "cloudx" {
 }
 
 resource "aws_subnet" "public_a" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
+  vpc_id                  = aws_vpc.cloudx.id
   cidr_block              = "10.10.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
@@ -33,7 +33,7 @@ resource "aws_subnet" "public_a" {
 }
 
 resource "aws_subnet" "public_b" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
+  vpc_id                  = aws_vpc.cloudx.id
   cidr_block              = "10.10.2.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1b"
@@ -43,7 +43,7 @@ resource "aws_subnet" "public_b" {
 }
 
 resource "aws_subnet" "public_c" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
+  vpc_id                  = aws_vpc.cloudx.id
   cidr_block              = "10.10.3.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1c"
@@ -54,7 +54,7 @@ resource "aws_subnet" "public_c" {
 
 
 resource "aws_subnet" "private_db_a" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
+  vpc_id                  = aws_vpc.cloudx.id
   cidr_block              = "10.10.20.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
@@ -64,7 +64,7 @@ resource "aws_subnet" "private_db_a" {
 }
 
 resource "aws_subnet" "private_db_b" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
+  vpc_id                  = aws_vpc.cloudx.id
   cidr_block              = "10.10.21.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1b"
@@ -74,7 +74,7 @@ resource "aws_subnet" "private_db_b" {
 }
 
 resource "aws_subnet" "private_db_c" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
+  vpc_id                  = aws_vpc.cloudx.id
   cidr_block              = "10.10.22.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1c"
@@ -84,7 +84,7 @@ resource "aws_subnet" "private_db_c" {
 }
 
 resource "aws_subnet" "private_a" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
+  vpc_id                  = aws_vpc.cloudx.id
   cidr_block              = "10.10.10.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
@@ -93,7 +93,7 @@ resource "aws_subnet" "private_a" {
   }
 }
 resource "aws_subnet" "private_b" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
+  vpc_id                  = aws_vpc.cloudx.id
   cidr_block              = "10.10.11.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1b"
@@ -102,7 +102,7 @@ resource "aws_subnet" "private_b" {
   }
 }
 resource "aws_subnet" "private_c" {
-  vpc_id                  = "${aws_vpc.cloudx.id}"
+  vpc_id                  = aws_vpc.cloudx.id
   cidr_block              = "10.10.12.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1c"
@@ -113,17 +113,17 @@ resource "aws_subnet" "private_c" {
 
 
 resource "aws_internet_gateway" "cloudx-igw" {
-  vpc_id = "${aws_vpc.cloudx.id}"
+  vpc_id = aws_vpc.cloudx.id
   tags   = {
     Name = "cloudx-igw"
   }
 }
 
 resource "aws_route_table" "public_rt" {
-  vpc_id = "${aws_vpc.cloudx.id}"
+  vpc_id = aws_vpc.cloudx.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.cloudx-igw.id}"
+    gateway_id = aws_internet_gateway.cloudx-igw.id
   }
   tags = {
     Name = "public_rt"
@@ -131,56 +131,56 @@ resource "aws_route_table" "public_rt" {
 }
 
 resource "aws_route_table_association" "public_rt_subnet_a" {
-  subnet_id      = "${aws_subnet.public_a.id}"
-  route_table_id = "${aws_route_table.public_rt.id}"
+  subnet_id      = aws_subnet.public_a.id
+  route_table_id = aws_route_table.public_rt.id
 }
 resource "aws_route_table_association" "public_rt_subnet_b" {
-  subnet_id      = "${aws_subnet.public_b.id}"
-  route_table_id = "${aws_route_table.public_rt.id}"
+  subnet_id      = aws_subnet.public_b.id
+  route_table_id = aws_route_table.public_rt.id
 }
 resource "aws_route_table_association" "public_rt_subnet_c" {
-  subnet_id      = "${aws_subnet.public_c.id}"
-  route_table_id = "${aws_route_table.public_rt.id}"
+  subnet_id      = aws_subnet.public_c.id
+  route_table_id = aws_route_table.public_rt.id
 }
 
 
 resource "aws_route_table" "private_rt" {
-  vpc_id = "${aws_vpc.cloudx.id}"
+  vpc_id = aws_vpc.cloudx.id
   tags   = {
     Name = "private_rt"
   }
 }
 resource "aws_route_table_association" "private_rt_subnet_a" {
-  subnet_id      = "${aws_subnet.private_a.id}"
-  route_table_id = "${aws_route_table.private_rt.id}"
+  subnet_id      = aws_subnet.private_a.id
+  route_table_id = aws_route_table.private_rt.id
 }
 
 resource "aws_route_table_association" "private_rt_subnet_b" {
-  subnet_id      = "${aws_subnet.private_b.id}"
-  route_table_id = "${aws_route_table.private_rt.id}"
+  subnet_id      = aws_subnet.private_b.id
+  route_table_id = aws_route_table.private_rt.id
 }
 resource "aws_route_table_association" "private_rt_subnet_c" {
-  subnet_id      = "${aws_subnet.private_c.id}"
-  route_table_id = "${aws_route_table.private_rt.id}"
+  subnet_id      = aws_subnet.private_c.id
+  route_table_id = aws_route_table.private_rt.id
 }
 resource "aws_route_table_association" "private_rt_db_subnet_a" {
-  subnet_id      = "${aws_subnet.private_db_a.id}"
-  route_table_id = "${aws_route_table.private_rt.id}"
+  subnet_id      = aws_subnet.private_db_a.id
+  route_table_id = aws_route_table.private_rt.id
 }
 resource "aws_route_table_association" "private_rt_db_subnet_b" {
-  subnet_id      = "${aws_subnet.private_db_b.id}"
-  route_table_id = "${aws_route_table.private_rt.id}"
+  subnet_id      = aws_subnet.private_db_b.id
+  route_table_id = aws_route_table.private_rt.id
 }
 resource "aws_route_table_association" "private_rt_db_subnet_c" {
-  subnet_id      = "${aws_subnet.private_db_c.id}"
-  route_table_id = "${aws_route_table.private_rt.id}"
+  subnet_id      = aws_subnet.private_db_c.id
+  route_table_id = aws_route_table.private_rt.id
 }
 ####Security Groups#####################################################################################################
 
 
 resource "aws_security_group" "bastion" {
   name        = "bastion"
-  vpc_id      = "${aws_vpc.cloudx.id}"
+  vpc_id      = aws_vpc.cloudx.id
   description = "allows access to bastion"
   ingress {
     from_port   = 22
@@ -203,7 +203,7 @@ resource "aws_security_group" "bastion" {
 
 resource "aws_security_group" "ec2_pool" {
   name        = "ec2_pool"
-  vpc_id      = "${aws_vpc.cloudx.id}"
+  vpc_id      = aws_vpc.cloudx.id
   description = "allows access to ec2 instances"
   ingress {
     from_port       = 22
@@ -240,7 +240,7 @@ resource "aws_security_group_rule" "ec2_pool_rule" {
 
 resource "aws_security_group" "alb" {
   name        = "alb"
-  vpc_id      = "${aws_vpc.cloudx.id}"
+  vpc_id      = aws_vpc.cloudx.id
   description = "allows access to alb"
   ingress {
     from_port   = 80
@@ -265,7 +265,7 @@ resource "aws_security_group_rule" "alb_pool_rule" {
 
 resource "aws_security_group" "efs" {
   name        = "efs"
-  vpc_id      = "${aws_vpc.cloudx.id}"
+  vpc_id      = aws_vpc.cloudx.id
   description = "defines access to efs mount points"
   ingress {
     from_port       = 2049
@@ -295,7 +295,7 @@ resource "aws_security_group_rule" "efs_pool_rule" {
 
 resource "aws_security_group" "mysql" {
   name        = "mysql"
-  vpc_id      = "${aws_vpc.cloudx.id}"
+  vpc_id      = aws_vpc.cloudx.id
   description = "defines access to ghost db"
   ingress {
     from_port       = 3306
@@ -316,7 +316,7 @@ resource "aws_security_group" "mysql" {
 
 resource "aws_security_group" "fargate_pool" {
   name        = "fargate_pool"
-  vpc_id      = "${aws_vpc.cloudx.id}"
+  vpc_id      = aws_vpc.cloudx.id
   description = "Allows access for Fargate instances"
   ingress {
     from_port       = 2049
@@ -343,7 +343,7 @@ resource "aws_security_group" "fargate_pool" {
 
 resource "aws_security_group" "vpc_endpoint" {
   name        = "vpc_endpoint"
-  vpc_id      = "${aws_vpc.cloudx.id}"
+  vpc_id      = aws_vpc.cloudx.id
   description = "allows access to vpc endpoints"
   ingress {
     from_port   = 0
@@ -449,7 +449,10 @@ resource "aws_iam_role" "ghost_ecs_role" {
       "Effect": "Allow",
       "Action": "sts:AssumeRole",
       "Principal": {
-        "Service": "ecs-tasks.amazonaws.com"
+        "Service": [
+        "ecs.amazonaws.com",
+        "ecs-tasks.amazonaws.com"
+        ]
       }
       }
   ]
@@ -467,37 +470,15 @@ resource "aws_iam_role_policy" "ghost_ecs_policy" {
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": "ecr:GetAuthorizationToken",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "ecr:BatchCheckLayerAvailability",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "ecr:GetDownloadUrlForLayer",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "ecr:BatchGetImage",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "elasticfilesystem:DescribeFileSystems",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "elasticfilesystem:ClientMount",
-      "Resource": ["*"]
-    },
-    {
-      "Effect": "Allow",
-      "Action": "elasticfilesystem:ClientWrite",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+                "elasticfilesystem:*",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
       "Resource": ["*"]
     }
   ]
@@ -624,8 +605,8 @@ resource "aws_launch_template" "ghost" {
   }
   user_data = base64encode(templatefile("initial_script.tpl",
     {
-      LB_DNS_NAME = "${aws_lb.ghost_lb.dns_name}"
-      DB_URL      = "${aws_db_instance.ghost.address}"
+      LB_DNS_NAME = aws_lb.ghost_lb.dns_name
+      DB_URL      = aws_db_instance.ghost.address
       DB_USER     = var.db_user
       DB_NAME     = var.db_name
     }
@@ -638,8 +619,8 @@ resource "aws_autoscaling_group" "ghost_ec2_pool" {
   name                = "ghost_ec2_pool"
   vpc_zone_identifier = [aws_subnet.public_a.id, aws_subnet.public_b.id, aws_subnet.public_c.id]
   #availability_zones = [aws_subnet.public_a.availability_zone,aws_subnet.public_b.availability_zone,aws_subnet.public_c.availability_zone]
-  desired_capacity    = 1
-  max_size            = 1
+  desired_capacity    = 2
+  max_size            = 2
   min_size            = 1
   target_group_arns   = [aws_lb_target_group.ghost-ec2.arn]
   launch_template {
