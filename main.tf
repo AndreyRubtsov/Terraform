@@ -553,7 +553,7 @@ resource "aws_lb_target_group" "ghost-ec2" {
 }
 resource "aws_lb_target_group" "ghost-fargate" {
   name        = "ghost-fargate"
-  port        = 80
+  port        = 2368
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.cloudx.id
