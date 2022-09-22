@@ -724,6 +724,17 @@ resource "aws_vpc_endpoint" "ecr" {
     Name = "ecr"
   }
 }
+resource "aws_vpc_endpoint" "ecrd" {
+  vpc_id             = aws_vpc.cloudx.id
+  service_name       = "com.amazonaws.eu-central-1.ecr.dkr"
+  vpc_endpoint_type  = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  tags = {
+    Name = "ecrd"
+  }
+}
 resource "aws_vpc_endpoint" "efs" {
   vpc_id             = aws_vpc.cloudx.id
   service_name       = "com.amazonaws.eu-central-1.elasticfilesystem"
@@ -733,6 +744,17 @@ resource "aws_vpc_endpoint" "efs" {
   ]
   tags = {
     Name = "efs"
+  }
+}
+resource "aws_vpc_endpoint" "efsf" {
+  vpc_id             = aws_vpc.cloudx.id
+  service_name       = "com.amazonaws.eu-central-1.elasticfilesystem-fips"
+  vpc_endpoint_type  = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  tags = {
+    Name = "efsf"
   }
 }
 resource "aws_vpc_endpoint" "logs" {
@@ -798,12 +820,10 @@ TASK_DEFINITION
     efs_volume_configuration {
       file_system_id = aws_efs_file_system.ghost_content.id
       root_directory = "/"
-      #      transit_encryption      = "ENABLED"
-      #      transit_encryption_port = 2999
-      #      authorization_config {
-      #        access_point_id = aws_efs_access_point.efs_access_point.id
-      #        iam             = "ENABLED"
-      #      }
+            transit_encryption      = "ENABLED"
+            authorization_config {
+              access_point_id = aws_efs_access_point.efs_access_point.id
+            }
     }
   }
 
