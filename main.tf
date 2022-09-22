@@ -325,7 +325,7 @@ resource "aws_security_group" "fargate_pool" {
     security_groups = [aws_security_group.efs.id]
   }
   ingress {
-    from_port       = 2368
+    from_port       = 80
     to_port         = 2368
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
@@ -565,7 +565,7 @@ resource "aws_lb_target_group" "ghost-ec2" {
 }
 resource "aws_lb_target_group" "ghost-fargate" {
   name        = "ghost-fargate"
-  port        = 2368
+  port        = 80
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.cloudx.id
@@ -618,8 +618,8 @@ resource "aws_launch_template" "ghost" {
 resource "aws_autoscaling_group" "ghost_ec2_pool" {
   name                = "ghost_ec2_pool"
   vpc_zone_identifier = [aws_subnet.public_a.id, aws_subnet.public_b.id, aws_subnet.public_c.id]
-  desired_capacity    = 2
-  max_size            = 2
+  desired_capacity    = 1
+  max_size            = 1
   min_size            = 1
   target_group_arns   = [aws_lb_target_group.ghost-ec2.arn]
   launch_template {
@@ -702,7 +702,6 @@ resource "aws_vpc_endpoint" "s3i" {
   tags = {
     Name = "s3i"
   }
-  private_dns_enabled = true
 }
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id             = aws_vpc.cloudx.id
@@ -822,8 +821,8 @@ resource "aws_ecs_task_definition" "task_def_ghost" {
     ],
     "portMappings": [
         {
-        "containerPort": 2368,
-        "hostPort": 2368
+        "containerPort": 80,
+        "hostPort": 80
         }
     ]
     }
@@ -852,7 +851,7 @@ resource "aws_ecs_service" "ghost" {
   load_balancer {
     target_group_arn = aws_lb_target_group.ghost-fargate.arn
     container_name   = "ghost_container"
-    container_port   = 2368
+    container_port   = 80
   }
   network_configuration {
     assign_public_ip = false
