@@ -701,6 +701,7 @@ resource "aws_vpc_endpoint" "s3i" {
   tags = {
     Name = "s3i"
   }
+  private_dns_enabled = true
 }
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id             = aws_vpc.cloudx.id
@@ -712,6 +713,7 @@ resource "aws_vpc_endpoint" "ssm" {
   tags = {
     Name = "ssm"
   }
+  private_dns_enabled = true
 }
 resource "aws_vpc_endpoint" "ecr" {
   vpc_id             = aws_vpc.cloudx.id
@@ -723,6 +725,7 @@ resource "aws_vpc_endpoint" "ecr" {
   tags = {
     Name = "ecr"
   }
+  private_dns_enabled = true
 }
 resource "aws_vpc_endpoint" "ecrd" {
   vpc_id             = aws_vpc.cloudx.id
@@ -734,6 +737,7 @@ resource "aws_vpc_endpoint" "ecrd" {
   tags = {
     Name = "ecrd"
   }
+  private_dns_enabled = true
 }
 resource "aws_vpc_endpoint" "efs" {
   vpc_id             = aws_vpc.cloudx.id
@@ -745,6 +749,7 @@ resource "aws_vpc_endpoint" "efs" {
   tags = {
     Name = "efs"
   }
+  private_dns_enabled = true
 }
 resource "aws_vpc_endpoint" "efsf" {
   vpc_id             = aws_vpc.cloudx.id
@@ -756,6 +761,7 @@ resource "aws_vpc_endpoint" "efsf" {
   tags = {
     Name = "efsf"
   }
+  private_dns_enabled = true
 }
 resource "aws_vpc_endpoint" "logs" {
   vpc_id             = aws_vpc.cloudx.id
@@ -767,6 +773,7 @@ resource "aws_vpc_endpoint" "logs" {
   tags = {
     Name = "cw logs"
   }
+  private_dns_enabled = true
 }
 
 #####creating ECS#######################################################################################################
