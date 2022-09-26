@@ -925,7 +925,7 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
         "period": 60,
         "stat": "Average",
         "region": "eu-central-1",
-        "title": "EFS CLient connections"
+        "title": "EFS Client connections"
       }
     },
     {
