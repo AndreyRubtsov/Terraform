@@ -825,7 +825,7 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
   "widgets": [
     {
       "type": "metric",
-      "x": 10,
+      "x": 6,
       "y": 0,
       "width": 12,
       "height": 6,
