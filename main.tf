@@ -17,7 +17,8 @@ resource "aws_vpc" "cloudx" {
   enable_dns_support   = true
   enable_dns_hostnames = true
   tags                 = {
-    Name = "cloudx"
+    Name    = "cloudx",
+    Project = "CloudX"
   }
 
 }
@@ -28,7 +29,8 @@ resource "aws_subnet" "public_a" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
   tags                    = {
-    Name = "public_a"
+    Name    = "public_a",
+    Project = "CloudX"
   }
 }
 
@@ -38,7 +40,8 @@ resource "aws_subnet" "public_b" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1b"
   tags                    = {
-    Name = "public_b"
+    Name    = "public_b",
+    Project = "CloudX"
   }
 }
 
@@ -48,7 +51,8 @@ resource "aws_subnet" "public_c" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1c"
   tags                    = {
-    Name = "public_c"
+    Name    = "public_c",
+    Project = "CloudX"
   }
 }
 
@@ -59,7 +63,8 @@ resource "aws_subnet" "private_db_a" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
   tags                    = {
-    Name = "private_db_a"
+    Name    = "private_db_a",
+    Project = "CloudX"
   }
 }
 
@@ -69,7 +74,8 @@ resource "aws_subnet" "private_db_b" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1b"
   tags                    = {
-    Name = "private_db_b"
+    Name    = "private_db_b",
+    Project = "CloudX"
   }
 }
 
@@ -79,7 +85,8 @@ resource "aws_subnet" "private_db_c" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1c"
   tags                    = {
-    Name = "private_db_c"
+    Name    = "private_db_c",
+    Project = "CloudX"
   }
 }
 
@@ -89,7 +96,8 @@ resource "aws_subnet" "private_a" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
   tags                    = {
-    Name = "private_a"
+    Name    = "private_a",
+    Project = "CloudX"
   }
 }
 resource "aws_subnet" "private_b" {
@@ -98,7 +106,8 @@ resource "aws_subnet" "private_b" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1b"
   tags                    = {
-    Name = "private_b"
+    Name    = "private_b",
+    Project = "CloudX"
   }
 }
 resource "aws_subnet" "private_c" {
@@ -107,7 +116,8 @@ resource "aws_subnet" "private_c" {
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1c"
   tags                    = {
-    Name = "private_c"
+    Name    = "private_c",
+    Project = "CloudX"
   }
 }
 
@@ -115,7 +125,8 @@ resource "aws_subnet" "private_c" {
 resource "aws_internet_gateway" "cloudx-igw" {
   vpc_id = aws_vpc.cloudx.id
   tags   = {
-    Name = "cloudx-igw"
+    Name    = "cloudx-igw",
+    Project = "CloudX"
   }
 }
 
@@ -126,7 +137,8 @@ resource "aws_route_table" "public_rt" {
     gateway_id = aws_internet_gateway.cloudx-igw.id
   }
   tags = {
-    Name = "public_rt"
+    Name    = "public_rt",
+    Project = "CloudX"
   }
 }
 
@@ -147,7 +159,8 @@ resource "aws_route_table_association" "public_rt_subnet_c" {
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.cloudx.id
   tags   = {
-    Name = "private_rt"
+    Name    = "private_rt",
+    Project = "CloudX"
   }
 }
 resource "aws_route_table_association" "private_rt_subnet_a" {
@@ -197,7 +210,8 @@ resource "aws_security_group" "bastion" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "bastion"
+    Name    = "bastion",
+    Project = "CloudX"
   }
 }
 
@@ -224,7 +238,8 @@ resource "aws_security_group" "ec2_pool" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "ec2_pool"
+    Name    = "ec2_pool",
+    Project = "CloudX"
   }
 }
 
@@ -250,7 +265,8 @@ resource "aws_security_group" "alb" {
   }
 
   tags = {
-    Name = "alb"
+    Name    = "alb",
+    Project = "CloudX"
   }
 }
 
@@ -290,7 +306,8 @@ resource "aws_security_group" "efs" {
     cidr_blocks = [aws_vpc.cloudx.cidr_block]
   }
   tags = {
-    Name = "efs"
+    Name    = "efs",
+    Project = "CloudX"
   }
 }
 
@@ -320,7 +337,8 @@ resource "aws_security_group" "mysql" {
     security_groups = [aws_security_group.fargate_pool.id]
   }
   tags = {
-    Name = "mysql"
+    Name    = "mysql",
+    Project = "CloudX"
   }
 }
 
@@ -347,7 +365,8 @@ resource "aws_security_group" "fargate_pool" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "fargate_pool"
+    Name    = "fargate_pool",
+    Project = "CloudX"
   }
 }
 
@@ -368,7 +387,8 @@ resource "aws_security_group" "vpc_endpoint" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name = "vpc_endpoint"
+    Name    = "vpc_endpoint",
+    Project = "CloudX"
   }
 }
 
