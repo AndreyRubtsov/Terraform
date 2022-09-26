@@ -834,7 +834,7 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
           [
             "AWS/EC2",
             "CPUUtilization",
-            "InstanceId",
+            "AutoScalingGroupName",
             "${aws_autoscaling_group.ghost_ec2_pool.id}"
           ]
         ],
@@ -867,8 +867,8 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
     },
     {
       "type": "metric",
-      "x": 0,
-      "y": 14,
+      "x": 14,
+      "y": 7,
       "width": 12,
       "height": 6,
       "properties": {
@@ -889,91 +889,7 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
     {
       "type": "metric",
       "x": 0,
-      "y": 21,
-      "width": 12,
-      "height": 6,
-      "properties": {
-        "metrics": [
-          [
-            "AWS/RDS",
-            "CPUUtilization",
-            "DBInstanceIdentifier",
-            "${aws_db_instance.ghost.id}"
-          ]
-        ],
-        "period": 60,
-        "stat": "Average",
-        "region": "eu-central-1",
-        "title": "RDS CPU Utilization"
-      }
-    },
-    {
-      "type": "metric",
-      "x": 0,
-      "y": 28,
-      "width": 12,
-      "height": 6,
-      "properties": {
-        "metrics": [
-          [
-            "AWS/RDS",
-            "DatabaseConnections",
-            "DBInstanceIdentifier",
-            "${aws_db_instance.ghost.id}"
-          ]
-        ],
-        "period": 60,
-        "stat": "Average",
-        "region": "eu-central-1",
-        "title": "RDS DB connections"
-      }
-    },
-    {
-      "type": "metric",
-      "x": 0,
-      "y": 35,
-      "width": 12,
-      "height": 6,
-      "properties": {
-        "metrics": [
-          [
-            "AWS/RDS",
-            "WriteIOPS",
-            "DBInstanceIdentifier",
-            "${aws_db_instance.ghost.id}"
-          ]
-        ],
-        "period": 60,
-        "stat": "Average",
-        "region": "eu-central-1",
-        "title": "RDS Storage Read/Write IOPS"
-      }
-    },
-    {
-      "type": "metric",
-      "x": 0,
-      "y": 35,
-      "width": 12,
-      "height": 6,
-      "properties": {
-        "metrics": [
-          [
-            "AWS/RDS",
-            "ReadIOPS",
-            "DBInstanceIdentifier",
-            "${aws_db_instance.ghost.id}"
-          ]
-        ],
-        "period": 60,
-        "stat": "Average",
-        "region": "eu-central-1",
-        "title": "RDS Storage Read/Write IOPS"
-      }
-    },
-    {
-      "type": "metric",
-      "x": 0,
-      "y": 42,
+      "y": 14,
       "width": 12,
       "height": 6,
       "properties": {
@@ -993,8 +909,8 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
     },
     {
       "type": "metric",
-      "x": 0,
-      "y": 49,
+      "x": 14,
+      "y": 14,
       "width": 12,
       "height": 6,
       "properties": {
@@ -1010,6 +926,90 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
         "stat": "Average",
         "region": "eu-central-1",
         "title": "EFS CLient connections"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 21,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/RDS",
+            "CPUUtilization",
+            "DBInstanceIdentifier",
+            "${aws_db_instance.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "RDS CPU Utilization"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 14,
+      "y": 21,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/RDS",
+            "DatabaseConnections",
+            "DBInstanceIdentifier",
+            "${aws_db_instance.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "RDS DB connections"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 28,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/RDS",
+            "WriteIOPS",
+            "DBInstanceIdentifier",
+            "${aws_db_instance.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "RDS Storage Read/Write IOPS"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 14,
+      "y": 28,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/RDS",
+            "ReadIOPS",
+            "DBInstanceIdentifier",
+            "${aws_db_instance.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "RDS Storage Read/Write IOPS"
       }
     }
   ]
