@@ -855,7 +855,7 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
           [
             "AWS/ECS",
             "CPUUtilization",
-            "ServiceName",
+            "ClusterName",
             "${aws_ecs_service.ghost.id}"
           ]
         ],
@@ -876,7 +876,7 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
           [
             "AWS/ECS",
             "CPUUtilization",
-            "ServiceName",
+            "ClusterName",
             "${aws_ecs_service.ghost.id}"
           ]
         ],
