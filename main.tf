@@ -825,8 +825,8 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
   "widgets": [
     {
       "type": "metric",
-      "x": 0,
-      "y": 13,
+      "x": 13,
+      "y": 0,
       "width": 12,
       "height": 6,
       "properties": {
@@ -856,7 +856,9 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
             "AWS/ECS",
             "CPUUtilization",
             "ClusterName",
-            "${aws_ecs_service.ghost.id}"
+            "${aws_ecs_cluster.ghost.name}",
+            "ServiceName",
+            "${aws_ecs_service.ghost.name}"
           ]
         ],
         "period": 60,
@@ -877,7 +879,9 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
             "AWS/ECS",
             "CPUUtilization",
             "ClusterName",
-            "${aws_ecs_service.ghost.id}"
+            "${aws_ecs_cluster.ghost.name}",
+            "ServiceName",
+            "${aws_ecs_service.ghost.name}"
           ]
         ],
         "period": 60,
