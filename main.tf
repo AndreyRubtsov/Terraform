@@ -826,7 +826,7 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
     {
       "type": "metric",
       "x": 0,
-      "y": 0,
+      "y": 13,
       "width": 12,
       "height": 6,
       "properties": {
@@ -932,7 +932,7 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
       "type": "metric",
       "x": 0,
       "y": 21,
-      "width": 8,
+      "width": 12,
       "height": 6,
       "properties": {
         "metrics": [
@@ -953,7 +953,7 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
       "type": "metric",
       "x": 14,
       "y": 21,
-      "width": 8,
+      "width": 12,
       "height": 6,
       "properties": {
         "metrics": [
