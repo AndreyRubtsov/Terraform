@@ -901,6 +901,8 @@ resource "aws_cloudwatch_dashboard" "dashboard" {
           [
             "AWS/EFS",
             "StorageBytes",
+            "StorageClass",
+            "Total",
             "FileSystemId",
             "${aws_efs_file_system.ghost_content.id}"
           ]
