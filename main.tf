@@ -465,7 +465,7 @@ resource "aws_iam_role_policy" "ghost_ecs_policy" {
                 "ecr:BatchGetImage",
                 "elasticfilesystem:DescribeFileSystems",
                 "elasticfilesystem:ClientMount",
-                "elasticfilesystem:ClientWrite",ECS
+                "elasticfilesystem:ClientWrite",
                 "logs:CreateLogStream",
                 "logs:PutLogEvents"
             ],
@@ -815,4 +815,204 @@ resource "aws_ecs_service" "ghost" {
     subnets          = [aws_subnet.private_a.id, aws_subnet.private_b.id, aws_subnet.private_c.id]
     security_groups  = [aws_security_group.fargate_pool.id]
   }
+}
+#####creating cloudwatch dashboards#####################################################################################
+resource "aws_cloudwatch_dashboard" "dashboard" {
+  dashboard_name = "undrey-dashboard"
+
+  dashboard_body = <<EOF
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/EC2",
+            "CPUUtilization",
+            "InstanceId",
+            "${aws_autoscaling_group.ghost_ec2_pool.id}"
+          ]
+        ],
+        "period": 300,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "EC2 Average CPU Utilization"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 7,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "CPUUtilization",
+            "ServiceName",
+            "${aws_ecs_service.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "ECS Service CPU Utilization"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 14,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/ECS",
+            "CPUUtilization",
+            "ServiceName",
+            "${aws_ecs_service.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "SampleCount",
+        "region": "eu-central-1",
+        "title": "ECS Running Tasks Count"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 21,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/RDS",
+            "CPUUtilization",
+            "DBInstanceIdentifier",
+            "${aws_db_instance.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "RDS CPU Utilization"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 28,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/RDS",
+            "DatabaseConnections",
+            "DBInstanceIdentifier",
+            "${aws_db_instance.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "RDS DB connections"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 35,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/RDS",
+            "WriteIOPS",
+            "DBInstanceIdentifier",
+            "${aws_db_instance.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "RDS Storage Read/Write IOPS"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 35,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/RDS",
+            "ReadIOPS",
+            "DBInstanceIdentifier",
+            "${aws_db_instance.ghost.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "RDS Storage Read/Write IOPS"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 42,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/EFS",
+            "StorageBytes",
+            "FileSystemId",
+            "${aws_efs_file_system.ghost_content.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "EFS Storage Bytes in Mb"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 49,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [
+            "AWS/EFS",
+            "ClientConnections",
+            "FileSystemId",
+            "${aws_efs_file_system.ghost_content.id}"
+          ]
+        ],
+        "period": 60,
+        "stat": "Average",
+        "region": "eu-central-1",
+        "title": "EFS CLient connections"
+      }
+    }
+  ]
+}
+EOF
 }
